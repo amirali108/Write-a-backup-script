@@ -8,8 +8,17 @@ fi
 source_dir=$1
 target_dir=$2
 
-if [[    ]]; then
- # Use rsync over ssh for remote targets
+if [[ $target_dir == *":"* ]]; then
+  # Use rsync over ssh for remote targets
+  server_and_dir=$target_dir
+  server=$(echo $server_and_dir | awk -F':' '{print $1}')
+  remote_dir=$(echo $server_and_dir | awk -F':' '{print $2}')
+ 
+  timestamp=$(date +%Y-%m-%d_%H-%M-%S)
+  backup_dir="$remote_dir/$timestamp"
+  ssh $server "mkdir $backup_dir"
+
+  rsync -avz -e "ssh -T" --link-dest=$server:$remote_dir/latest $source_dir $server:$backup_dirnc over ssh for remote targets
   
 
 
