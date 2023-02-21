@@ -29,9 +29,11 @@ if [[ $target_dir == *":"* ]]; then
   ssh $server "ln -snf $backup_dir $remote_dir/latest"
 
 else
+ mkdir $backup_dir
 
+ rsync -avz --link-dest=$target_dir/latest $source_dir $backup_dir
 
-  
-
+# Update the symlink for the latest backup
+ ln -snf $backup_dir $target_dir/latest
 fi
-  
+
