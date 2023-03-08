@@ -24,9 +24,10 @@ if [[ $target_dir == *":"* ]]; then
   ssh $server "ln -snf $backup_dir $remote_dir/latest"
 
 else
- 
- 
- 
+# Use local rsync for local targets 
+
+ timestamp=$(date +%Y-%m-%d_%H-%M-%S)
+ backup_dir="$target_dir/$timestamp"
  
  mkdir $backup_dir
 
