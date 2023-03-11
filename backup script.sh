@@ -15,20 +15,24 @@ if [[ $target_dir == *":"* ]]; then
   remote_dir=$(echo $server_and_dir | awk -F':' '{print $2}')
  
   timestamp=$(date +%Y-%m-%d_%H-%M-%S)
-  backup_dir="$remote_dir/$timestamp"
-  ssh $server "mkdir $backup_dir"
+  backup_dir="$remote_dir/$timestamp/"
+  ssh $server "mkdir -p $backup_dir $target_dir/latest/"
 
-  rsync -avz -e "ssh -T" --link-dest=$server:$remote_dir/latest $source_dir $server:$backup_dir
-  ssh $server "ln -snf $backup_dir $remote_dir/latest"
+  rsync -avzP -e "ssh -T" --link-dest=../latest/ $source_dir $server:$backup_dir
+
+  # Update the symlink for the latest backup
+  ssh $server "cp -lr $backup_dir* $remote_dir/latest/"
 
 else
   # Use local rsync for local targets 
 
- timestamp=$(date +%Y-%m-%d_%H-%M-%S)
- backup_dir="$target_dir/$timestamp"
+  timestamp=$(date +%Y-%m-%d_%H-%M-%S)
+  backup_dir="$target_dir/$timestamp/"
 
- mkdir $backup_dir
+  mkdir -p $backup_dir "$target_dir/latest/"
 
- rsync -avz --link-dest=$target_dir/latest $source_dir $backup_dir
- ln -snf $backup_dir $target_dir/latest
+  rsync -avz --link-dest=../latest/ $source_dir $backup_dir
+
+  # Update the symlink for the latest backup
+  cp -lr $backup_dir* $target_dir/latest/
 fi
